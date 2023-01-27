@@ -12,6 +12,8 @@ mypy-extensions==0.4.3
 packaging==23.0
 pathspec==0.11.0
 platformdirs==2.6.2
+psycopg2==2.9.5
+python-dotenv==0.21.1
 six==1.16.0
 SQLAlchemy==2.0.0
 tomli==2.0.1
