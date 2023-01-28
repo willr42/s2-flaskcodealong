@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 import click
 
 # Setup
@@ -8,6 +9,7 @@ app.config.from_object("config.app_config")
 
 # Models
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 
 class Book(db.Model):
@@ -17,6 +19,15 @@ class Book(db.Model):
     genre = db.Column(db.String())
     length = db.Column(db.Integer)
     year = db.Column(db.Integer)
+
+
+class BookSchema(ma.Schema):
+    class Meta:
+        fields = ("book_id", "title", "genre", "length", "year")
+
+
+book_schema = BookSchema()
+books_schema = BookSchema(many=True)
 
 
 @app.cli.command("create")
