@@ -11,6 +11,6 @@
 
 ## Usage
 
-**GET** `localhost:5000/books`: returns all books in the DB
-**GET** `localhost:5000/books/<id>`: returns book in the DB by ID
-**POST** `localhost:5000/books`: adds book to the database
+- **GET** `localhost:5000/books`: returns all books in the DB
+- **GET** `localhost:5000/books/<id>`: returns book in the DB by ID
+- **POST** `localhost:5000/books`: adds book to the database
