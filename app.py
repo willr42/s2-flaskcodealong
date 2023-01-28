@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import click
 
 # Setup
 app = Flask(__name__)
@@ -16,3 +17,36 @@ class Book(db.Model):
     genre = db.Column(db.String())
     length = db.Column(db.Integer)
     year = db.Column(db.Integer)
+
+
+@app.cli.command("create")
+def create_db():
+    db.create_all()
+    print("Tables created")
+
+
+@app.cli.command("drop")
+def drop_db():
+    if click.confirm("Are you sure you want to drop all tables?", False):
+        db.drop_all()
+        print("Tables dropped")
+
+
+@app.cli.command("seed")
+def seed_db():
+
+    # Create book objects
+    book1 = Book(
+        title="Harry Potter & the Philosopher's Stone",
+        genre="fantasy",
+        length=400,
+        year=1999,
+    )
+    book2 = Book(
+        title="Dune",
+        genre="fantasy",
+        length=600,
+        year=1987,
+    )
+    db.session.add_all([book1, book2])
+    db.session.commit()
