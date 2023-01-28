@@ -5,13 +5,17 @@ import click
 
 # Setup
 app = Flask(__name__)
+# Best to read this line in reverse order. The string looks for an app_config object in the config.py file
+# Then sets the whole application config to use the fields
+# on that provided object.
 app.config.from_object("config.app_config")
 
-# Models
+# Initialise libraries
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-
+# Create book model
+# This is translated by SQLAlchemy into a DB table & columns (when we run the db.create_all())
 class Book(db.Model):
     __tablename__ = "books"
     book_id = db.Column(db.Integer, primary_key=True)
@@ -21,15 +25,19 @@ class Book(db.Model):
     year = db.Column(db.Integer)
 
 
+# Create book schema
+# This is Marshmallow, it translates a Python object (Book) to a JSON object
 class BookSchema(ma.Schema):
     class Meta:
         fields = ("book_id", "title", "genre", "length", "year")
 
 
+# Here's where we define the actual schemas
 book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 
 
+# Command line
 @app.cli.command("create")
 def create_db():
     db.create_all()
@@ -38,6 +46,7 @@ def create_db():
 
 @app.cli.command("drop")
 def drop_db():
+    # I added this confirmation step
     if click.confirm("Are you sure you want to drop all tables?", False):
         db.drop_all()
         print("Tables dropped")
@@ -59,18 +68,23 @@ def seed_db():
         length=600,
         year=1987,
     )
+    # Insert into database and "save" with commit
     db.session.add_all([book1, book2])
     db.session.commit()
 
 
+# Route returning all books in DB
 @app.route("/books", methods=["GET"])
 def get_books():
+    # Query DB, store result
     book_list = Book.query.all()
+    # Return result in a format that can be understood (JSON)
     return books_schema.dump(book_list)
 
 
 @app.route("/books/<int:id>", methods=["GET"])
 def get_book(id):
+    # Query by specific ID as primary key
     book = Book.query.get(id)
     return book_schema.dump(book)
 
