@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import click
+from flasgger import Swagger
 
 # Setup
 app = Flask(__name__)
@@ -13,6 +14,19 @@ app.config.from_object("config.app_config")
 # Initialise libraries
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+# Configure flasgger
+
+swagger_config = Swagger.DEFAULT_CONFIG
+
+my_swagger = {
+    "title": "Test Title",
+    "description": "Test Description",
+    "version": "0.0.1",
+}
+
+swagger_config["info"] = my_swagger
+swagger = Swagger(app, config=swagger_config)
 
 # Create book model
 # This is translated by SQLAlchemy into a DB table & columns (when we run the db.create_all())
@@ -76,6 +90,36 @@ def seed_db():
 # Route returning all books in DB
 @app.route("/books", methods=["GET"])
 def get_books():
+    """Get all books.
+    ---
+    responses:
+        200:
+            description: A list of all books
+            schema:
+                $ref: '#/definitions/Books'
+    definitions:
+        Book:
+            type: object
+            properties:
+                title:
+                    type: string
+                genre:
+                    type: string
+                length:
+                    type: integer
+                year:
+                    type: integer
+            example:
+                title: Lord of the Rings
+                genre: fantasy
+                length: 700
+                year: 1952
+        Books:
+            type: array
+            items:
+                $ref: '#/definitions/Book'
+    """
+
     # Query DB, store result
     book_list = Book.query.all()
     # Return result in a format that can be understood (JSON)
