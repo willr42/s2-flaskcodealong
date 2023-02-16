@@ -1,6 +1,9 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+
+from swagger_gen.lib.wrappers import swagger_metadata
+from swagger_gen.swagger import Swagger
 import click
 
 # Setup
@@ -13,6 +16,7 @@ app.config.from_object("config.app_config")
 # Initialise libraries
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
 
 # Create book model
 # This is translated by SQLAlchemy into a DB table & columns (when we run the db.create_all())
@@ -54,7 +58,6 @@ def drop_db():
 
 @app.cli.command("seed")
 def seed_db():
-
     # Create book objects
     book1 = Book(
         title="The Left Hand of Darkness",
@@ -75,6 +78,7 @@ def seed_db():
 
 # Route returning all books in DB
 @app.route("/books", methods=["GET"])
+@swagger_metadata(summary="Get books", description="Returns all books in database")
 def get_books():
     # Query DB, store result
     book_list = Book.query.all()
@@ -115,3 +119,7 @@ def add_book():
     db.session.commit()
 
     return book_schema.dump(new_book)
+
+
+swagger = Swagger(app=app, title="app title")
+swagger.configure()
